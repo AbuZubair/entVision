@@ -1,0 +1,72 @@
+<div class="row container">
+
+    <ngx-spinner
+    bdOpacity = 0.9
+    bdColor = "#ffffff"
+    size = "medium"
+    color = "#474040"
+    type = "ball-spin"
+    [fullScreen] = "true"
+    >
+    <p style="color: white" > </p>
+    </ngx-spinner>
+
+    <div class="col-md-12" [hidden]="isEdit" style="margin-top:20px;">
+
+        <p>
+          <button type="button" class="btn btn-primary btn-md fa fa-plus-circle fa-sm" (click)="add()">
+            Add
+          </button>
+        </p>
+        <table class="table table-striped table-bordered table-responsive row-border hover" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Stock</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of data">
+                <td>{{ data.name }}</td>
+                <td>{{ data.stok }}</td>
+                <td>{{ data.date | date: 'MMM dd, yyyy H:mm'}}</td>
+              </tr>
+              
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-md-12 form-horizontal" [hidden]="!isEdit" style="margin-top:20px;">
+   
+        <div class="form-group">
+            <div class="col-sm-2"><label for="">Produk</label></div>
+            <div class="col-sm-10">
+                <ng-select2 
+                    [data]="productsData"
+                    [placeholder]="'Pilih Produk'"
+                    [width]="600"
+                    [(ngModel)]="selected"
+                    >
+                </ng-select2>
+            </div>
+        </div>
+        
+        
+        <div class="form-group">
+            <div class="col-sm-2"><label for="">Stock</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control" [(ngModel)]="stok">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-3">
+                <button (click)="save()" class="btn btn-success btn-lg fa fa-save fa-sm" style="margin:5px;"> Save</button>
+                <button (click)="back()" class="btn btn-warning btn-lg fa fa-hand-o-left fa-sm" style="margin:5px;"> Cancel</button>
+            </div>
+        </div>
+        
+    </div>
+</div>

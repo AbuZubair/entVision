@@ -1,0 +1,21 @@
+<div class="row container">
+  <div class="col-md-12">
+    <google-chart style="width: 100%;"
+      [title]="'Produk'"
+      [type]="type"
+      [data]="dataProduct"
+      [columnNames]="columns"
+      [options]="myOptions">
+    </google-chart>
+  </div>
+
+  <div class="col-md-12" style="margin-top:20px">
+    <google-chart style="width: 100%;"
+      [title]="'Order'"
+      [type]="type"
+      [data]="dataOrder"
+      [columnNames]="columns"
+      [options]="myOptions">
+    </google-chart>
+  </div>
+</div>
