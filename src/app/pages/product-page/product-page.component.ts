@@ -139,6 +139,7 @@ export class ProductPageComponent implements OnInit {
         'id': maxId+1,
         'name': this.product.controls.name.value,
         'stok': this.product.controls.stok.value,
+        'img': 'https://picsum.photos/200/300?grayscale'
       }
 
       dataexec.push(addData);

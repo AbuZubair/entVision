@@ -1,9 +1,11 @@
 import { Inject, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Select2OptionData } from 'ng-select2';
 import { NgxSpinnerService } from "ngx-spinner";
 import { LOCAL_STORAGE, StorageService } from 'ngx-webstorage-service';
 import { DataTableDirective } from 'angular-datatables';
+import { NgxGalleryOptions, NgxGalleryImage, NgxGalleryAnimation } from 'ngx-gallery';
 
 var PRODUCT = 'products';
 var ORDER = 'order';
@@ -25,14 +27,23 @@ export class OrderPageComponent implements OnInit {
 
   public productsData: Array<Select2OptionData>;
 
-  selected:any;
-  stok:any;
   storageData:any;
 
   isEdit = false;
+  isGallery = false;
 
-  constructor(@Inject(LOCAL_STORAGE) private storage: StorageService, private spinner: NgxSpinnerService) {
-    
+  orderForm: FormGroup;
+
+  galleryOptions: NgxGalleryOptions[];
+  galleryImages: NgxGalleryImage[];
+
+  constructor(@Inject(LOCAL_STORAGE) private storage: StorageService, private spinner: NgxSpinnerService,
+  private fb: FormBuilder) {
+    this.orderForm = this.fb.group({
+      orderNumber:[],
+      description:[],
+      items: this.fb.array([this.fb.group({product:'',stok:''})])
+    })
   }
 
   ngOnInit() {
@@ -49,6 +60,11 @@ export class OrderPageComponent implements OnInit {
       responsive: true
     };
 
+    this.galleryOptions = [
+      { image: false, height: "100px" },
+      { breakpoint: 500, width: "100%" }
+    ];
+
     this.getData().then((res)=> {
       this.data = res;
       this.dtTrigger.next();
@@ -60,6 +76,7 @@ export class OrderPageComponent implements OnInit {
   getData(){
     this.spinner.show();
     return new Promise((resolve, reject) => {
+      this.storageData = this.storage.get(PRODUCT);
       resolve(this.storage.get(ORDER))
     });
   }
@@ -77,72 +94,105 @@ export class OrderPageComponent implements OnInit {
 
   add(){
     this.isEdit = true;
-    this.selected = '';
-
-    this.storageData = this.storage.get(PRODUCT);
+    this.isGallery = false;
+    this.items.clear();
+    this.addItem();
+    this.orderForm.setValue({orderNumber:'', description: '', items:[{product:'',stok:''}]});
+    let temp = this.storageData.filter(e=>parseInt(e.stok) > 0)
     var i;
-    for(i = 0; i < this.storageData.length; i++){
-        let name = this.storageData[i]['name']
-        this.storageData[i].id = name;
-        this.storageData[i].text = name;
-        delete this.storageData[i].name;
-        delete this.storageData[i].stok;
+    for(i = 0; i < temp.length; i++){
+        let name = temp[i]['name']
+        temp[i].text = name;
+        delete temp[i].name;
+        delete temp[i].stok;
     }
-    this.productsData = this.storageData;
+    this.productsData = temp;
 
   }
 
+  view(data){
+    this.isEdit = true;
+    this.isGallery = true;
+    for (let index = 1; index < data.item.length; index++) {
+      this.items.push(this.fb.group({product:'',stok:''}));
+    }
+    this.orderForm.setValue({orderNumber:data.orderNumber, description: data.description, items:data.item});
+    this.orderForm.disable();
+
+    let arrData = [];
+
+    data.item.forEach(element => {
+      let find = this.storageData.find(e => element.product==e.id)
+      arrData.push({
+        small: find.img,
+        medium: find.img,
+        big: find.img
+      })
+    });
+
+    this.galleryImages = arrData;
+  }
+
   save(){
-    if(!this.selected){
+    
+    let items = this.orderForm.value
+       
+    if( items.length==1 && items[0].product=='' ){
       alert('Silahkan pilih Produk')
       return false;
     }
-
-    if(!this.stok || this.stok==0){
-      alert('Silahkan Isi stok')
-      return false;
-    }
-
     
     let order = [];
     let products;
     products = this.storage.get(PRODUCT)
 
     var checkStok = new Promise((resolve, reject) => {
-      products.forEach((element,i) => {
-        if(element.name==this.selected){
-          if(parseInt(products[i].stok) < parseInt(this.stok)){
-            resolve(false);
-          }else{
-            resolve(true);
-          }
+      let valid = {status:true,product:''}
+      
+      items.items.forEach((element, index, array) => {
+        let find = products.find(e => e.id == element.product);
+        if(parseInt(find.stok) < parseInt(element.stok)){
+          valid.status = false
+          valid.product = element.product
         }
-      });
+        if (index === array.length -1) resolve(valid);
+      });     
+
     });
 
-    checkStok.then((val) => {
-      if(!val){
-        alert('Stok tidak cukup');
+    checkStok.then((val:any) => {
+      if(!val.status){
+        alert('Stok '+val.product+' tidak cukup');
         return false;
       }else{
 
         /*Save order*/
         if(this.storage.get(ORDER)){
           order = this.storage.get(ORDER);
-          let maxId = Math.max.apply(Math, order.map(function(o) { return o.id; }))
+          let initialValue = 0;
+          let sum = items.items.reduce(function (total, currentValue) {
+              return total + parseInt(currentValue.stok);
+          }, initialValue);
           let addData = {
-            'id': maxId+1,
-            'name': this.selected,
-            'stok': this.stok,
+            'orderNumber': items.orderNumber,
+            'description': items.description,
+            'item': items.items,
+            'total': sum,
             'date':Date.now()
           }
 
           order.push(addData);
         }else{
+          let initialValue = 0;
+          let sum = items.items.reduce(function (total, currentValue) {
+              return total + parseInt(currentValue.stok);
+          }, initialValue);
+          
           order.push({
-            'id': 1,
-            'name': this.selected,
-            'stok': this.stok,
+            'orderNumber': items.orderNumber,
+            'description': items.description,
+            'item': items.items,
+            'total': sum,
             'date':Date.now()
           })
         }
@@ -152,17 +202,21 @@ export class OrderPageComponent implements OnInit {
 
         /*Update stok*/
         var wait = new Promise((resolve, reject) => {
-          products.forEach((e,i,array) => {
-            if(e.name==this.selected){
-              products[i].stok = products[i].stok - this.stok;
-            }
+
+          items.items.forEach((e,i,array) => {
+            let find = products.find(el => el.id == e.product);
+            let index = products.indexOf(find);
+            products[index].stok = parseInt(products[i].stok) - parseInt(e.stok)
             if (i === array.length -1) resolve();
           });
+
         });
 
         wait.then(() => {
           this.storage.remove(PRODUCT)
           this.storage.set(PRODUCT, products);
+          this.items.clear();
+          this.addItem();
           this.back();
         });
 
@@ -181,6 +235,18 @@ export class OrderPageComponent implements OnInit {
         this.spinner.hide();
       });
     })
+  }
+
+  get items() {
+    return this.orderForm.get('items') as FormArray;
+  }
+
+  addItem() {
+    this.items.push(this.fb.group({product:'',stok:''}));
+  }
+
+  deleteItem(index) {
+    this.items.removeAt(index);
   }
   
 

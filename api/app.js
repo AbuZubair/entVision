@@ -15,9 +15,6 @@ app.use(cookieParser());
 server = app.listen(port, () => console.log('Example app listening on port ' + port + '!'))
 server.setTimeout(14400000);
 
-var users = require('./routes/users');
-app.use('/api/v1/users', users);
-
 var products = require('./routes/products');
 app.use('/api/products/get', products);
 

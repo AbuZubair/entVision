@@ -1,20 +1,31 @@
 <div class="row container">
-  <div class="col-md-12">
+  <ngx-spinner
+  bdOpacity = 0.9
+  bdColor = "#ffffff"
+  size = "medium"
+  color = "#474040"
+  type = "ball-spin"
+  [fullScreen] = "true"
+  >
+  <p style="color: white" > </p>
+  </ngx-spinner>
+  
+  <div class="col-md-12" *ngIf="ready">
     <google-chart style="width: 100%;"
       [title]="'Produk'"
       [type]="type"
       [data]="dataProduct"
-      [columnNames]="columns"
+      [columnNames]="columnsProduct"
       [options]="myOptions">
     </google-chart>
   </div>
 
-  <div class="col-md-12" style="margin-top:20px">
+  <div class="col-md-12" *ngIf="ready" style="margin-top:20px">
     <google-chart style="width: 100%;"
       [title]="'Order'"
       [type]="type"
       [data]="dataOrder"
-      [columnNames]="columns"
+      [columnNames]="columnsOrder"
       [options]="myOptions">
     </google-chart>
   </div>

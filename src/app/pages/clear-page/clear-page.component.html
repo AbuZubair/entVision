@@ -1,0 +1,13 @@
+<div class="row container">
+    <!-- <button wlConfirmationPopover
+    [popoverTitle]="'Clear data'"
+    placement="bottom"
+    (confirm)="clear()"
+    (cancel)="cancelClicked = true" class="btn btn-success btn-lg fa fa-times-circle" style="margin:5px;"> Clear Data</button> -->
+
+    <a mwlConfirmationPopover
+    [popoverTitle]="'Clear data'"
+    placement="bottom"
+    (confirm)="clear()"
+    (cancel)="cancelClicked = true" style="padding:25px"><span class="btn btn-danger btn-lg fa fa-times-circle"> Clear Data</span></a>  
+</div>

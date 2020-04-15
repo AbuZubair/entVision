@@ -11,6 +11,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { StorageServiceModule } from 'ngx-webstorage-service';
 import { ConfirmationPopoverModule } from 'angular-confirmation-popover';
 import { GoogleChartsModule } from 'angular-google-charts';
+import { NgxGalleryModule } from 'ngx-gallery';
 
 import { AppComponent } from './app.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
@@ -20,11 +21,14 @@ import { LayoutModule } from 'angular-admin-lte';
 import { ApiService } from './service/api.service';
 import { ProductPageComponent } from './pages/product-page/product-page.component';
 import { OrderPageComponent } from './pages/order-page/order-page.component';
+import { ClearPageComponent } from './pages/clear-page/clear-page.component';
+
 
 const appRoutes: Routes = [
   { path: 'home', component: HomePageComponent },
   { path: 'product', component: ProductPageComponent },
   { path: 'order', component: OrderPageComponent },
+  { path: 'clear', component: ClearPageComponent },
   { path: '**', 
     redirectTo: 'home',
     pathMatch: 'full' }
@@ -35,7 +39,8 @@ const appRoutes: Routes = [
     AppComponent,
     HomePageComponent,
     ProductPageComponent,
-    OrderPageComponent
+    OrderPageComponent,
+    ClearPageComponent
   ],
   imports: [
     RouterModule.forRoot(
@@ -57,6 +62,7 @@ const appRoutes: Routes = [
       confirmButtonType: 'danger' // set defaults here
     }),
     GoogleChartsModule.forRoot(),
+    NgxGalleryModule
   ],
   providers: [ApiService],
   bootstrap: [AppComponent]

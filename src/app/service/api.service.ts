@@ -16,21 +16,6 @@ export class ApiService {
 
   get(url) {
     return this.http.get(url);
-  }
-
-  // corsGet(url) {
-  //   fetch(url, {
-  //     headers: {
-  //       'Content-Type': 'application/json;charset=UTF-8',
-  //       'Access-Control-Allow-Origin': '*',
-  //       'Accept': '*',
-  //       'Cache-Control': 'no-cahce'
-  //     },
-  //     method: 'GET',
-  //     mode: 'no-cors',
-  //     cache: 'no-cache'
-  //   });
-  // }
-  
+  }  
   
 }
